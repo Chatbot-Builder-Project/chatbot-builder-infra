@@ -1,6 +1,9 @@
 name: Deploy Services to AKS
 
 on:
+  push:
+    branches:
+      - main
   repository_dispatch:
     types: [deploy_chatbot]
 
