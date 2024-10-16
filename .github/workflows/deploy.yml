@@ -1,0 +1,27 @@
+name: Deploy Services to AKS
+
+on:
+  repository_dispatch:
+    types: [deploy_chatbot]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the k8s repo
+    - name: Checkout k8s repo
+      uses: actions/checkout@v2
+
+    # Step 2: Set up Kubernetes context with token
+    - name: Set up Kubernetes context with token
+      run: |
+        kubectl config set-credentials github-actions --token=${{ secrets.K8S_ACCESS_TOKEN }}
+        kubectl config set-context aks-context --cluster=${{ secrets.AKS_CLUSTER_NAME }} --user=github-actions
+        kubectl config use-context aks-context
+
+    # Step 3: Apply Kubernetes deployment and service manifests
+    - name: Deploy Engine-Service to AKS
+      run: |
+        kubectl apply -f chatbot-builder-engine-deployment.yaml
+        kubectl apply -f chatbot-builder-engine-service.yaml
