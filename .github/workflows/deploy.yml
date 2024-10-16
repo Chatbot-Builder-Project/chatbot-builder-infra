@@ -24,13 +24,13 @@ jobs:
         kubectl config set-context aks-context --cluster=aks-cluster --user=github-actions
         kubectl config use-context aks-context
 
-    # Step 3: Check Kubernetes cluster info with token
+    # Step 3: Check Kubernetes cluster info
     - name: Check Kubernetes Cluster Info
       run: |
-        kubectl cluster-info --insecure-skip-tls-verify=true --token=${{ secrets.K8S_ACCESS_TOKEN }}
+        kubectl cluster-info --insecure-skip-tls-verify=true
 
     # Step 4: Apply Kubernetes deployment and service manifests
     - name: Deploy Engine-Service to AKS
       run: |
-        kubectl apply -f chatbot-builder-engine-deployment.yaml --validate=false --insecure-skip-tls-verify=true --token=${{ secrets.K8S_ACCESS_TOKEN }}
-        kubectl apply -f chatbot-builder-engine-service.yaml --validate=false --insecure-skip-tls-verify=true --token=${{ secrets.K8S_ACCESS_TOKEN }}
+        kubectl apply -f chatbot-builder-engine-deployment.yaml --validate=false
+        kubectl apply -f chatbot-builder-engine-service.yaml --validate=false
