@@ -16,21 +16,55 @@ jobs:
     - name: Checkout k8s repo
       uses: actions/checkout@v2
 
-    # Step 2: Set up Kubernetes context with token and server URL
+    # Step 2: Print environment variables for debugging
+    - name: Print Environment Variables
+      run: printenv
+
+    # Step 3: Show the Kubernetes API server URL (masked if secret)
+    - name: Show API Server URL
+      run: echo "K8S_SERVER_URL is ${{ secrets.K8S_SERVER_URL }}"
+
+    # Step 4: Set up Kubernetes context with token and server URL
     - name: Set up Kubernetes context with token and server
       run: |
+        echo "Setting up Kubernetes context..."
+        echo "Using K8S_SERVER_URL: ${{ secrets.K8S_SERVER_URL }}"
+        echo "Setting credentials with token"
         kubectl config set-credentials github-actions --token=${{ secrets.K8S_ACCESS_TOKEN }}
         kubectl config set-cluster aks-cluster --server=${{ secrets.K8S_SERVER_URL }} --insecure-skip-tls-verify=true
         kubectl config set-context aks-context --cluster=aks-cluster --user=github-actions
         kubectl config use-context aks-context
 
-    # Step 3: Check Kubernetes cluster info
+    # Step 5: Show the Kubernetes configuration for debugging
+    - name: Show Kubernetes Configuration
+      run: |
+        echo "Current kubectl context:"
+        kubectl config current-context
+        echo "Full kubeconfig:"
+        kubectl config view
+
+    # Step 6: Check DNS resolution for the API server (debugging)
+    - name: Check DNS Resolution
+      run: |
+        echo "Checking DNS resolution..."
+        nslookup $(echo "${{ secrets.K8S_SERVER_URL }}" | sed 's/https\?:\/\///')
+
+    # Step 7: Check Kubernetes cluster info with token
     - name: Check Kubernetes Cluster Info
       run: |
+        echo "Checking Kubernetes cluster info..."
         kubectl cluster-info --insecure-skip-tls-verify=true
 
-    # Step 4: Apply Kubernetes deployment and service manifests
+    # Step 8: List all Kubernetes resources in the default namespace (debugging)
+    - name: List Pods and Services
+      run: |
+        echo "Listing all pods and services in the default namespace..."
+        kubectl get pods --namespace default
+        kubectl get services --namespace default
+
+    # Step 9: Apply Kubernetes deployment and service manifests
     - name: Deploy Engine-Service to AKS
       run: |
-        kubectl apply -f chatbot-builder-engine-deployment.yaml --validate=false
-        kubectl apply -f chatbot-builder-engine-service.yaml --validate=false
+        echo "Applying Kubernetes deployment and service manifests..."
+        kubectl apply -f chatbot-builder-engine-deployment.yaml --validate=false --insecure-skip-tls-verify=true
+        kubectl apply -f chatbot-builder-engine-service.yaml --validate=false --insecure-skip-tls-verify=true
