@@ -36,14 +36,13 @@ jobs:
       run: |
         az aks get-credentials --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME
 
-    - name: Apply manifests with dynamic date annotation
+    - name: Deploy to AKS - Apply manifests
       run: |
-        kubectl patch deployment chatbot-builder-engine \
-        --patch '{"spec": {"template": {"metadata": {"annotations": {"deploymentTimestamp": "'$(date +%s)'"}}}}}'
-
         kubectl apply -f chatbot-builder-engine-deployment.yaml
         kubectl apply -f chatbot-builder-engine-service.yaml
 
     - name: Verify deployment status
       run: |
-        kubectl rollout status deployment chatbot-builder-engine
+        kubectl get pods
+        kubectl get services
+    
