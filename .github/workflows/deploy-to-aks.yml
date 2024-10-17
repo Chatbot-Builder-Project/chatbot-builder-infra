@@ -36,12 +36,10 @@ jobs:
       run: |
         az aks get-credentials --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME
 
-    - name: Deploy to AKS - Apply manifests
+    - name: Restart deployment
       run: |
-        kubectl apply -f chatbot-builder-engine-deployment.yaml
-        kubectl apply -f chatbot-builder-engine-service.yaml
+        kubectl rollout restart deployment chatbot-builder-engine
 
     - name: Verify deployment status
       run: |
-        kubectl get pods
-        kubectl get services
+        kubectl rollout status deployment chatbot-builder-engine
