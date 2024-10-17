@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: chatbot-builder-engine
-          image: chatbot-builder-engine:latest
+          image: acrworkflow1729021672279.azurecr.io/chatbot-builder-engine:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
