@@ -58,4 +58,24 @@ jobs:
 
     - name: Verify deployment status
       run: |
-        kubectl rollout status deployment/chatbot-builder-engine -n $NAMESPACE
+        # Determine environment and set the namespace accordingly
+        if [[ "${{ github.event.action }}" == "deploy_chatbot_staging" ]]; then
+          NAMESPACE="staging"
+        elif [[ "${{ github.event.action }}" == "deploy_chatbot_production" ]]; then
+          NAMESPACE="default"
+        else
+          echo "Unknown event type. Exiting..."
+          exit 1
+        fi
+
+        # Debugging: Print the namespace for verification
+        echo "Namespace is: $NAMESPACE"
+
+        # If the namespace is empty, fail the build early
+        if [ -z "$NAMESPACE" ]; then
+          echo "Error: Namespace is not set."
+          exit 1
+        fi
+
+        # Check the deployment rollout status
+        kubectl rollout status deployment/chatbot-builder-engine -n ${NAMESPACE}
