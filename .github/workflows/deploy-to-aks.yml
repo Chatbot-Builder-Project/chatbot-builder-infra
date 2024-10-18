@@ -1,12 +1,10 @@
 name: Deploy to AKS
 
 on:
-  push:
-    branches:
-      - main
   repository_dispatch:
     types:
-      - deploy_chatbot
+      - deploy_chatbot_staging
+      - deploy_chatbot_production
 
 permissions:
   id-token: write
@@ -19,6 +17,9 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [production, staging]
 
     steps:
     - name: Checkout repository
@@ -38,11 +39,20 @@ jobs:
 
     - name: Deploy to AKS - Apply manifests
       run: |
-        kubectl apply -f chatbot-builder-engine-deployment.yaml
-        kubectl apply -f chatbot-builder-engine-service.yaml
+        # Use the payload image_tag to determine the image to deploy
+        if [[ "${{ github.event.client_payload.environment }}" == "staging" ]]; then
+          NAMESPACE="staging"
+          IMAGE_TAG="${{ github.event.client_payload.image_tag }}"
+        else
+          NAMESPACE="default"
+          IMAGE_TAG="${{ github.event.client_payload.image_tag }}"
+        fi
+
+        # Apply the manifests in the correct namespace with the correct image tag
+        sed -i 's|image: .*$|image: '"${{ secrets.ACR_LOGIN_SERVER }}/chatbot-builder-engine:${IMAGE_TAG}"'|' chatbot-builder-engine-deployment.yaml
+        kubectl apply -n $NAMESPACE -f chatbot-builder-engine-deployment.yaml
+        kubectl apply -n $NAMESPACE -f chatbot-builder-engine-service.yaml
 
     - name: Verify deployment status
       run: |
-        kubectl get pods
-        kubectl get services
-    
+        kubectl rollout status deployment/chatbot-builder-engine -n $NAMESPACE
