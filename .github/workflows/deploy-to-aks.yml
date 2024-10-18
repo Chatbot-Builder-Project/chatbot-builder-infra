@@ -37,7 +37,6 @@ jobs:
     - name: Deploy to AKS - Apply manifests
       run: |
         # Determine environment and set the namespace accordingly
-        run: |
         if [[ "${{ github.event.action }}" == "deploy_chatbot_staging" ]]; then
           NAMESPACE="staging"
           LOAD_BALANCER_IP="${{ secrets.STAGING_LOAD_BALANCER_IP }}"
