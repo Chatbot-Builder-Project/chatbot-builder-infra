@@ -5,6 +5,7 @@ metadata:
 spec:
   selector:
     app: chatbot-builder-engine
+  loadBalancerIP: ${LOAD_BALANCER_IP}
   ports:
     - protocol: TCP
       port: 8080
