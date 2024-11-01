@@ -58,7 +58,13 @@ jobs:
       run: |
         if [ -d "manifests/pre-deployment" ]; then
           echo "Applying pre-deployment resources."
-          find manifests/pre-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
+          files=$(find manifests/pre-deployment -type f \( -name "*.yaml" -o -name "*.yml" \))
+          
+          if [ -n "$files" ]; then
+            echo "$files" | xargs -I {} kubectl apply -n $NAMESPACE -f {}
+          else
+            echo "No YAML files to apply in pre-deployment."
+          fi
         fi
 
     - name: Update Deployment and Service Manifests with Image Tag and Load Balancer IP
@@ -73,14 +79,26 @@ jobs:
       run: |
         if [ -d "manifests/deployment" ]; then
           echo "Applying deployment resources."
-          find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
+          files=$(find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \))
+          
+          if [ -n "$files" ]; then
+            echo "$files" | xargs -I {} kubectl apply -n $NAMESPACE -f {}
+          else
+            echo "No YAML files to apply in deployment."
+          fi
         fi
 
     - name: Apply post-deployment resources (Services, Ingress, HPA)
       run: |
         if [ -d "manifests/post-deployment" ]; then
           echo "Applying post-deployment resources."
-          find manifests/post-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
+          files=$(find manifests/post-deployment -type f \( -name "*.yaml" -o -name "*.yml" \))
+          
+          if [ -n "$files" ]; then
+            echo "$files" | xargs -I {} kubectl apply -n $NAMESPACE -f {}
+          else
+            echo "No YAML files to apply in post-deployment."
+          fi
         fi
 
     - name: Verify deployment status
