@@ -58,8 +58,11 @@ jobs:
       run: |
         if [ -d "manifests/pre-deployment" ]; then
           echo "Applying pre-deployment resources."
-          kubectl apply -n $NAMESPACE -f manifests/pre-deployment/*.yaml || true
-          kubectl apply -n $NAMESPACE -f manifests/pre-deployment/*.yml || true
+          for file in manifests/pre-deployment/*.{yaml,yml}; do
+            if [ -f "$file" ]; then
+              kubectl apply -n $NAMESPACE -f "$file"
+            fi
+          done
         fi
 
     - name: Update Deployment and Service Manifests with Image Tag and Load Balancer IP
@@ -74,16 +77,22 @@ jobs:
       run: |
         if [ -d "manifests/deployment" ]; then
           echo "Applying deployment resources."
-          kubectl apply -n $NAMESPACE -f manifests/deployment/*.yaml || true
-          kubectl apply -n $NAMESPACE -f manifests/deployment/*.yml || true
+          for file in manifests/deployment/*.{yaml,yml}; do
+            if [ -f "$file" ]; then
+              kubectl apply -n $NAMESPACE -f "$file"
+            fi
+          done
         fi
 
     - name: Apply post-deployment resources (Services, Ingress, HPA)
       run: |
         if [ -d "manifests/post-deployment" ]; then
           echo "Applying post-deployment resources."
-          kubectl apply -n $NAMESPACE -f manifests/post-deployment/*.yaml || true
-          kubectl apply -n $NAMESPACE -f manifests/post-deployment/*.yml || true
+          for file in manifests/post-deployment/*.{yaml,yml}; do
+            if [ -f "$file" ]; then
+              kubectl apply -n $NAMESPACE -f "$file"
+            fi
+          done
         fi
 
     - name: Verify deployment status
