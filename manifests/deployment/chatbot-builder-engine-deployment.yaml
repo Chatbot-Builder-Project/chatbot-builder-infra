@@ -21,6 +21,15 @@ spec:
           ports:
             - containerPort: 80
               protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: environment-config
+          env:
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: sentry-secrets
+                  key: SENTRY_DSN
           volumeMounts:
             - mountPath: /app/logs
               name: logs-volume
