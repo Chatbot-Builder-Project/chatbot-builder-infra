@@ -56,13 +56,8 @@ jobs:
 
     - name: Apply pre-deployment resources (PVCs, ConfigMaps, Secrets)
       run: |
-        if ls manifests/pre-deployment/*.{yaml,yml} 1> /dev/null 2>&1; then
-          echo "Applying pre-deployment resources."
-          kubectl apply -n $NAMESPACE -f manifests/pre-deployment/*.yaml || true
-          kubectl apply -n $NAMESPACE -f manifests/pre-deployment/*.yml || true
-        else
-          echo "No pre-deployment resources to apply."
-        fi
+        echo "Applying all pre-deployment resources recursively."
+        find manifests/pre-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
 
     - name: Update Deployment and Service Manifests with Image Tag and Load Balancer IP
       run: |
@@ -74,23 +69,13 @@ jobs:
 
     - name: Deploy core resources (Deployment, StatefulSet)
       run: |
-        if ls manifests/deployment/*.{yaml,yml} 1> /dev/null 2>&1; then
-          echo "Applying deployment resources."
-          kubectl apply -n $NAMESPACE -f manifests/deployment/*.yaml || true
-          kubectl apply -n $NAMESPACE -f manifests/deployment/*.yml || true
-        else
-          echo "No deployment resources to apply."
-        fi
+        echo "Applying all deployment resources recursively."
+        find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
 
     - name: Apply post-deployment resources (Services, Ingress, HPA)
       run: |
-        if ls manifests/post-deployment/*.{yaml,yml} 1> /dev/null 2>&1; then
-          echo "Applying post-deployment resources."
-          kubectl apply -n $NAMESPACE -f manifests/post-deployment/*.yaml || true
-          kubectl apply -n $NAMESPACE -f manifests/post-deployment/*.yml || true
-        else
-          echo "No post-deployment resources to apply."
-        fi
+        echo "Applying all post-deployment resources recursively."
+        find manifests/post-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
 
     - name: Verify deployment status
       run: |
