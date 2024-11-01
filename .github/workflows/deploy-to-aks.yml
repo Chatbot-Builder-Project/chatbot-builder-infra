@@ -34,7 +34,7 @@ jobs:
       run: |
         az aks get-credentials --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME
 
-    - name: Deploy to AKS - Apply manifests
+    - name: Deploy to AKS - Apply core deployment and service manifests
       run: |
         # Determine environment and set the namespace accordingly
         if [[ "${{ github.event.action }}" == "deploy_chatbot_staging" ]]; then
@@ -51,15 +51,25 @@ jobs:
         IMAGE_TAG="${{ github.event.client_payload.image_tag }}"
         echo "Deploying to namespace: $NAMESPACE with image: $IMAGE_TAG"
 
-        # Update the manifest with the correct image tag
+        # Update deployment and service manifests with the correct image tag and load balancer IP
         sed -i 's|image: .*$|image: '"${{ secrets.ACR_LOGIN_SERVER }}/chatbot-builder-engine:${IMAGE_TAG}"'|' chatbot-builder-engine-deployment.yaml
-
-        # Substitute the placeholder in the manifest with the actual load balancer IP
         sed -i 's|${LOAD_BALANCER_IP}|'"$LOAD_BALANCER_IP"'|' chatbot-builder-engine-service.yaml
 
-        # Apply the deployment and service manifests to the correct namespace
+        # Apply core deployment and service manifests to the specified namespace
         kubectl apply -n $NAMESPACE -f chatbot-builder-engine-deployment.yaml
         kubectl apply -n $NAMESPACE -f chatbot-builder-engine-service.yaml
+
+    - name: Deploy additional resources (volumes, configmaps, secrets)
+      run: |
+        # Apply additional manifests by folder if they exist
+        for folder in volumes configmaps secrets; do
+          if [ -d "$folder" ]; then
+            echo "Applying manifests in folder: $folder"
+            kubectl apply -n $NAMESPACE -f $folder/
+          else
+            echo "Folder $folder does not exist, skipping..."
+          fi
+        done
 
     - name: Verify deployment status
       run: |
@@ -73,10 +83,8 @@ jobs:
           exit 1
         fi
 
-        # Debugging: Print the namespace for verification
         echo "Namespace is: $NAMESPACE"
 
-        # If the namespace is empty, fail the build early
         if [ -z "$NAMESPACE" ]; then
           echo "Error: Namespace is not set."
           exit 1
