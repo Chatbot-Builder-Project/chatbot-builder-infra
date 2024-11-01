@@ -21,4 +21,11 @@ spec:
           ports:
             - containerPort: 80
               protocol: TCP
+          volumeMounts:
+            - mountPath: /app/logs
+              name: logs-volume
+      volumes:
+        - name: logs-volume
+          persistentVolumeClaim:
+            claimName: logs-pvc
       restartPolicy: Always
