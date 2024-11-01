@@ -11,7 +11,7 @@ This repository contains Kubernetes configuration files and GitHub Actions workf
 
 ### Folder Structure
 
-'''plaintext
+```plaintext
 ├── manifests/
 │   ├── pre-deployment/
 │   ├── deployment/
@@ -20,7 +20,7 @@ This repository contains Kubernetes configuration files and GitHub Actions workf
 │   ├── engine-secrets-staging.yaml
 │   └── engine-secrets-production.yaml
 └── ...
-'''
+```
 
 ## GitHub Actions Workflow
 
@@ -35,26 +35,26 @@ This deployment workflow is triggered by an external repository via a **reposito
 ### Workflow Details: How `manifests/` Files Are Applied
 
 1. **Pre-Deployment Resources**: The workflow first applies any pre-deployment resources (e.g., Persistent Volume Claims, ConfigMaps) to ensure all necessary resources are available for the application.
-   '''yaml
+   ```yaml
    - name: Apply pre-deployment resources (PVCs, ConfigMaps, Secrets)
      run: |
        echo "Applying all pre-deployment resources recursively."
        find manifests/pre-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
-   '''
+   ```
 2. **Deployment Resources**: Next, the main deployment YAML files (Deployments, StatefulSets) are applied to AKS, updating the application state based on the latest configurations.
-   '''yaml
+   ```yaml
    - name: Deploy core resources (Deployment, StatefulSet)
      run: |
        echo "Applying all deployment resources recursively."
        find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
-   '''
+   ```
 3. **Post-Deployment Resources**: Finally, the workflow applies any post-deployment resources, such as services, ingress configurations, or Horizontal Pod Autoscalers.
-   '''yaml
+   ```yaml
    - name: Apply post-deployment resources (Services, Ingress, HPA)
      run: |
        echo "Applying all post-deployment resources recursively."
        find manifests/post-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
-   '''
+   ```
 
 ### Execution Order
 
@@ -78,10 +78,10 @@ To apply the secrets manually:
 1. **Edit the Files**: Open each file in the `secrets/` directory and add the necessary values (e.g., `SENTRY_DSN`).
 2. **Apply the Secrets**: Use the apply command with the secret file name to apply it to aks.
 
-'''bash
+```bash
 kubectl apply -f secrets/engine-secrets-staging.yaml -n staging
 kubectl apply -f secrets/engine-secrets-production.yaml -n default
-'''
+```
 
 > **Note**: Keep your filled secrets files secure and avoid committing them to the repository to prevent accidental exposure of sensitive data.
 
