@@ -23,7 +23,7 @@ spec:
               protocol: TCP
           envFrom:
             - configMapRef:
-                name: environment-config
+                name: executor-env-configmap
           env:
             - name: SENTRY_DSN
               valueFrom:

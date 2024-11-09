@@ -22,7 +22,7 @@ spec:
             - containerPort: 8081
           envFrom:
             - configMapRef:
-                name: environment-config
+                name: api-env-configmap
           env:
             - name: SENTRY_DSN
               valueFrom:

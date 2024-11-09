@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-env-configmap
+  namespace: staging
+data:
+  ASPNETCORE_ENVIRONMENT: "staging"
+  SENTRY_MINIMUM_EVENT_LEVEL: "information"
