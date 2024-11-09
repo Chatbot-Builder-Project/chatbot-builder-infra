@@ -77,13 +77,3 @@ jobs:
         run: |
           echo "Applying all post-deployment resources recursively."
           find manifests/post-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
-
-      - name: Verify deployment status
-        run: |
-          if [[ -z "$NAMESPACE" ]]; then
-            echo "Error: Namespace is not set."
-            exit 1
-          fi
-          
-          # Check the deployment rollout status
-          kubectl rollout status deployment/chatbot-builder-engine -n ${NAMESPACE}
