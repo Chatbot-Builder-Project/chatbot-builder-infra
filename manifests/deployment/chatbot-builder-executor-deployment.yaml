@@ -1,23 +1,23 @@
 ﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chatbot-builder-engine
+  name: chatbot-builder-executor
   labels:
-    app: chatbot-builder-engine
+    app: chatbot-builder-executor
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: chatbot-builder-engine
+      app: chatbot-builder-executor
   template:
     metadata:
-      name: chatbot-builder-engine
+      name: chatbot-builder-executor
       labels:
-        app: chatbot-builder-engine
+        app: chatbot-builder-executor
     spec:
       containers:
-        - name: chatbot-builder-engine
-          image: chatbot-builder-engine
+        - name: chatbot-builder-executor
+          image: chatbot-builder-executor
           ports:
             - containerPort: 80
               protocol: TCP
