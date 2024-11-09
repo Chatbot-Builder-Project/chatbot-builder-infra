@@ -28,7 +28,7 @@ spec:
             - name: SENTRY_DSN
               valueFrom:
                 secretKeyRef:
-                  name: engine-secrets
+                  name: common-secrets
                   key: SENTRY_DSN
           volumeMounts:
             - mountPath: /app/logs
