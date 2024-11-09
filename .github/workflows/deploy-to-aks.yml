@@ -63,12 +63,13 @@ jobs:
         run: |
           IMAGE_NAME="${{ github.event.client_payload.image_name }}"
           IMAGE_TAG="${{ github.event.client_payload.image_tag }}"
-          
+          FULL_IMAGE="${{ secrets.ACR_LOGIN_SERVER }}/${IMAGE_NAME}:${IMAGE_TAG}"
+
           echo "Updating deployments for image: $IMAGE_NAME with tag: $IMAGE_TAG"
-          
-          # Find and replace all occurrences of the image name with the new tag in deployment manifests
+
+          # Find and replace occurrences of the image name without the login server in deployment manifests
           find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec \
-          sed -i 's|\('"$IMAGE_NAME"':\).*|\1'"$IMAGE_TAG"'|' {} \;
+          sed -i 's|image: '"$IMAGE_NAME"'|image: '"$FULL_IMAGE"'|' {} \;
 
       - name: Update the service manifest with the correct load balancer IP
         run: |

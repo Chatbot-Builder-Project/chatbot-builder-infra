@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: chatbot-builder-api
-          image: acrworkflow1729021672279.azurecr.io/chatbot-builder-api
+          image: chatbot-builder-api
           ports:
             - containerPort: 8080
             - containerPort: 8081
