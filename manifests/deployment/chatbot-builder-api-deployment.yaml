@@ -1,0 +1,39 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot-builder-api
+  labels:
+    app: chatbot-builder-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatbot-builder-api
+  template:
+    metadata:
+      labels:
+        app: chatbot-builder-api
+    spec:
+      containers:
+        - name: chatbot-builder-api
+          image: acrworkflow1729021672279.azurecr.io/chatbot-builder-api
+          ports:
+            - containerPort: 8080
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: environment-config
+          env:
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: SENTRY_DSN
+          volumeMounts:
+            - mountPath: /app/logs
+              name: logs-volume
+      volumes:
+        - name: logs-volume
+          persistentVolumeClaim:
+            claimName: logs-pvc
+      restartPolicy: Always

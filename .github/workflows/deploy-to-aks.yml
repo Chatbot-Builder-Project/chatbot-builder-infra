@@ -19,70 +19,71 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Azure CLI
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        enable-AzPSSession: false
+      - name: Set up Azure CLI
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: false
 
-    - name: Azure CLI Script - Get AKS Credentials
-      run: |
-        az aks get-credentials --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME
+      - name: Azure CLI Script - Get AKS Credentials
+        run: |
+          az aks get-credentials --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME
 
-    - name: Set Environment Variables
-      run: |
-        if [[ "${{ github.event.action }}" == "deploy_chatbot_staging" ]]; then
-          NAMESPACE="staging"
-          LOAD_BALANCER_IP="${{ secrets.STAGING_LOAD_BALANCER_IP }}"
-        elif [[ "${{ github.event.action }}" == "deploy_chatbot_production" ]]; then
-          NAMESPACE="default"
-          LOAD_BALANCER_IP="${{ secrets.PRODUCTION_LOAD_BALANCER_IP }}"
-        else
-          echo "Unknown event type. Exiting..."
-          exit 1
-        fi
+      - name: Set Environment Variables
+        run: |
+          if [[ "${{ github.event.action }}" == "deploy_chatbot_staging" ]]; then
+            NAMESPACE="staging"
+            LOAD_BALANCER_IP="${{ secrets.STAGING_LOAD_BALANCER_IP }}"
+          elif [[ "${{ github.event.action }}" == "deploy_chatbot_production" ]]; then
+            NAMESPACE="default"
+            LOAD_BALANCER_IP="${{ secrets.PRODUCTION_LOAD_BALANCER_IP }}"
+          else
+            echo "Unknown event type. Exiting..."
+            exit 1
+          fi
+          
+          IMAGE_TAG="${{ github.event.client_payload.image_tag }}"
+          echo "Deploying to namespace: $NAMESPACE with image: $IMAGE_TAG"
+          
+          echo "NAMESPACE=$NAMESPACE" >> $GITHUB_ENV
+          echo "LOAD_BALANCER_IP=$LOAD_BALANCER_IP" >> $GITHUB_ENV
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
-        IMAGE_TAG="${{ github.event.client_payload.image_tag }}"
-        echo "Deploying to namespace: $NAMESPACE with image: $IMAGE_TAG"
-        
-        echo "NAMESPACE=$NAMESPACE" >> $GITHUB_ENV
-        echo "LOAD_BALANCER_IP=$LOAD_BALANCER_IP" >> $GITHUB_ENV
-        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+      - name: Apply pre-deployment resources (PVCs, ConfigMaps, Secrets)
+        run: |
+          echo "Applying all pre-deployment resources recursively."
+          find manifests/pre-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
 
-    - name: Apply pre-deployment resources (PVCs, ConfigMaps, Secrets)
-      run: |
-        echo "Applying all pre-deployment resources recursively."
-        find manifests/pre-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
+      - name: Update Deployment and Service Manifests with Image Tag and Load Balancer IP
+        run: |
+          # Update the deployment manifest with the specified image tag
+          sed -i 's|image: .*$|image: '"${{ secrets.ACR_LOGIN_SERVER }}/chatbot-builder-engine:${IMAGE_TAG}"'|' manifests/deployment/chatbot-builder-engine-deployment.yaml
+          sed -i 's|image: .*$|image: '"${{ secrets.ACR_LOGIN_SERVER }}/chatbot-builder-api:${IMAGE_TAG}"'|' manifests/deployment/chatbot-builder-api-deployment.yaml
+          
+          # Update the service manifest with the correct load balancer IP
+          sed -i 's|${LOAD_BALANCER_IP}|'"$LOAD_BALANCER_IP"'|' manifests/post-deployment/chatbot-builder-api-service.yaml
 
-    - name: Update Deployment and Service Manifests with Image Tag and Load Balancer IP
-      run: |
-        # Update the deployment manifest with the specified image tag
-        sed -i 's|image: .*$|image: '"${{ secrets.ACR_LOGIN_SERVER }}/chatbot-builder-engine:${IMAGE_TAG}"'|' manifests/deployment/chatbot-builder-engine-deployment.yaml
-        
-        # Update the service manifest with the correct load balancer IP
-        sed -i 's|${LOAD_BALANCER_IP}|'"$LOAD_BALANCER_IP"'|' manifests/post-deployment/chatbot-builder-engine-service.yaml
+      - name: Deploy core resources (Deployment, StatefulSet)
+        run: |
+          echo "Applying all deployment resources recursively."
+          find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
 
-    - name: Deploy core resources (Deployment, StatefulSet)
-      run: |
-        echo "Applying all deployment resources recursively."
-        find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
+      - name: Apply post-deployment resources (Services, Ingress, HPA)
+        run: |
+          echo "Applying all post-deployment resources recursively."
+          find manifests/post-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
 
-    - name: Apply post-deployment resources (Services, Ingress, HPA)
-      run: |
-        echo "Applying all post-deployment resources recursively."
-        find manifests/post-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
-
-    - name: Verify deployment status
-      run: |
-        if [[ -z "$NAMESPACE" ]]; then
-          echo "Error: Namespace is not set."
-          exit 1
-        fi
-
-        # Check the deployment rollout status
-        kubectl rollout status deployment/chatbot-builder-engine -n ${NAMESPACE}
+      - name: Verify deployment status
+        run: |
+          if [[ -z "$NAMESPACE" ]]; then
+            echo "Error: Namespace is not set."
+            exit 1
+          fi
+          
+          # Check the deployment rollout status
+          kubectl rollout status deployment/chatbot-builder-engine -n ${NAMESPACE}
