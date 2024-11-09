@@ -59,13 +59,19 @@ jobs:
           echo "Applying all pre-deployment resources recursively."
           find manifests/pre-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
 
-      - name: Update Deployment and Service Manifests with Image Tag and Load Balancer IP
+      - name: Update Deployment Manifests with New Image
         run: |
-          # Update the deployment manifest with the specified image tag
-          sed -i 's|image: .*$|image: '"${{ secrets.ACR_LOGIN_SERVER }}/chatbot-builder-engine:${IMAGE_TAG}"'|' manifests/deployment/chatbot-builder-engine-deployment.yaml
-          sed -i 's|image: .*$|image: '"${{ secrets.ACR_LOGIN_SERVER }}/chatbot-builder-api:${IMAGE_TAG}"'|' manifests/deployment/chatbot-builder-api-deployment.yaml
+          IMAGE_NAME="${{ github.event.client_payload.image_name }}"
+          IMAGE_TAG="${{ github.event.client_payload.image_tag }}"
           
-          # Update the service manifest with the correct load balancer IP
+          echo "Updating deployments for image: $IMAGE_NAME with tag: $IMAGE_TAG"
+          
+          # Find and replace all occurrences of the image name with the new tag in deployment manifests
+          find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec \
+          sed -i 's|\('"$IMAGE_NAME"':\).*|\1'"$IMAGE_TAG"'|' {} \;
+
+      - name: Update the service manifest with the correct load balancer IP
+        run: |
           sed -i 's|${LOAD_BALANCER_IP}|'"$LOAD_BALANCER_IP"'|' manifests/post-deployment/chatbot-builder-api-service.yaml
 
       - name: Deploy core resources (Deployment, StatefulSet)
