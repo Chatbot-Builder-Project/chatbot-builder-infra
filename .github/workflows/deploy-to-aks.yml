@@ -73,7 +73,7 @@ jobs:
 
       - name: Update the service manifest with the correct load balancer IP
         run: |
-          sed -i 's|${LOAD_BALANCER_IP}|'"$LOAD_BALANCER_IP"'|' manifests/post-deployment/chatbot-builder-api-service.yaml
+          sed -i 's|${LOAD_BALANCER_IP}|'"$LOAD_BALANCER_IP"'|' manifests/post-deployment/api-service.yaml
 
       - name: Deploy core resources (Deployment, StatefulSet)
         run: |
