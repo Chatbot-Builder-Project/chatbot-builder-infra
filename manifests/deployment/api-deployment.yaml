@@ -29,6 +29,19 @@ spec:
                 secretKeyRef:
                   name: common-secrets
                   key: SENTRY_DSN
+            - name: DB_HOST
+              value: api-sqlserver-service
+            - name: DB_PORT
+              value: "1433"
+            - name: DB_NAME
+              value: chatbot_builder_api_db
+            - name: DB_USER
+              value: sa
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: api-secrets
+                  key: SA_PASSWORD
           volumeMounts:
             - mountPath: /app/logs
               name: logs-volume
