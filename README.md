@@ -15,10 +15,8 @@ This repository contains Kubernetes configuration files and GitHub Actions workf
 ├── manifests/
 │   ├── pre-deployment/
 │   ├── deployment/
-│   └── post-deployment/
-├── secrets/
-│   ├── engine-secrets-staging.yaml
-│   └── engine-secrets-production.yaml
+│   ├── post-deployment/
+│   └── secrets/
 └── ...
 ```
 
