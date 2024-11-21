@@ -120,14 +120,23 @@ jobs:
       - name: Apply pre-deployment resources (PVCs, ConfigMaps, Secrets)
         run: |
           echo "Applying all pre-deployment resources recursively."
-          kubectl apply -n $NAMESPACE -R -f manifests/pre-deployment/
+          for file in $(find manifests/pre-deployment -type f \( -name "*.yaml" -o -name "*.yml" \)); do
+            echo "Applying $file"
+            kubectl apply -n $NAMESPACE -f "$file"
+          done
 
       - name: Deploy core resources (Deployment, StatefulSet)
         run: |
           echo "Applying all deployment resources recursively."
-          kubectl apply -n $NAMESPACE -R -f manifests/deployment/
+          for file in $(find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \)); do
+            echo "Applying $file"
+            kubectl apply -n $NAMESPACE -f "$file"
+          done
 
       - name: Apply post-deployment resources (Services, Ingress, HPA)
         run: |
           echo "Applying all post-deployment resources recursively."
-          kubectl apply -n $NAMESPACE -R -f manifests/post-deployment/
+          for file in $(find manifests/post-deployment -type f \( -name "*.yaml" -o -name "*.yml" \)); do
+            echo "Applying $file"
+            kubectl apply -n $NAMESPACE -f "$file"
+          done
