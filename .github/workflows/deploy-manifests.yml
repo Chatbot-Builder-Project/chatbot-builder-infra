@@ -103,15 +103,14 @@ jobs:
 
       - name: Update Deployment Manifests with New Image
         run: |
-          IMAGE_NAME="${{ github.event.client_payload.image_name }}"
-          IMAGE_TAG="${{ github.event.client_payload.image_tag }}"
-          FULL_IMAGE="${IMAGE_NAME}:${IMAGE_TAG}"
+          IMAGE_FULL_NAME="${{ github.event.client_payload.image_full_name }}"
+          IMAGE_MANIFEST_NAME="${{ github.event.client_payload.image_manifest_name }}"
 
-          echo "Updating deployments for image: $IMAGE_NAME with tag: $IMAGE_TAG"
+          echo "Updating deployments for image: $IMAGE_FULL_NAME"
 
           # Find and replace occurrences of the image name in deployment manifests
           find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec \
-          sed -i 's|image: '"$IMAGE_NAME"'|image: '"$FULL_IMAGE"'|' {} \;
+          sed -i 's|image: '"$IMAGE_MANIFEST_NAME"'|image: '"$IMAGE_FULL_NAME"'|' {} \;
 
       - name: Apply Namespaces
         run: |
