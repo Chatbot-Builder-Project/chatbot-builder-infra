@@ -2,7 +2,6 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: executor-env-configmap
-  namespace: production
 data:
   LOG_LEVEL: "base"
   SENTRY_ENVIRONMENT: "base"

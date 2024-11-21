@@ -1,5 +1,5 @@
 resources:
-  - configmaps/api-configmap.yaml
-  - configmaps/executor-configmap.yaml
+  - configmaps/api-env-configmap.yaml
+  - configmaps/executor-env-configmap.yaml
   - pvc/logs-pvc.yaml
   - pvc/sqlserver-pvc.yaml
