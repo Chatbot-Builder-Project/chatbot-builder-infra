@@ -35,3 +35,9 @@ variable "load_balancer_public_ip_ids" {
   description = "List of Public IP resource IDs to associate with the AKS load balancer"
   default = []
 }
+
+variable "outbound_ports_allocated" {
+  type        = number
+  default     = 1024
+  description = "Number of outbound SNAT ports to allocate per backend pool instance"
+}
