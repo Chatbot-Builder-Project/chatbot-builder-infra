@@ -41,10 +41,11 @@ jobs:
       - name: Parse Terraform Outputs
         id: parse_outputs
         run: |
+          # Extract Terraform outputs using jq
           PRODUCTION_IP=$(jq -r '.production_public_ip.value' terraform-outputs.json)
           STAGING_IP=$(jq -r '.staging_public_ip.value' terraform-outputs.json)
           KUBE_CONFIG=$(jq -r '.kube_config.value' terraform-outputs.json)
-          
+
           echo "PRODUCTION_IP=$PRODUCTION_IP" >> $GITHUB_ENV
           echo "STAGING_IP=$STAGING_IP" >> $GITHUB_ENV
 
