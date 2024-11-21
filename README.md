@@ -78,7 +78,7 @@ To apply the secrets manually:
 
 ```bash
 kubectl apply -f secrets/engine-secrets-staging.yaml -n staging
-kubectl apply -f secrets/engine-secrets-production.yaml -n default
+kubectl apply -f secrets/engine-secrets-production.yaml -n production
 ```
 
 > **Note**: Keep your filled secrets files secure and avoid committing them to the repository to prevent accidental exposure of sensitive data.

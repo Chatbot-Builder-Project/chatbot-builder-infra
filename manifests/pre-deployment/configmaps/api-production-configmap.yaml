@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: api-env-configmap
-  namespace: default
+  namespace: production
 data:
   ASPNETCORE_ENVIRONMENT: "production"
   SENTRY_MINIMUM_EVENT_LEVEL: "warning"
