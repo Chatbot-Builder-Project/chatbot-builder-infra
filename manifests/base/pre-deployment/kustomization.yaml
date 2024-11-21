@@ -1,0 +1,7 @@
+resources:
+  - configmaps/api-production-configmap.yaml
+  - configmaps/api-staging-configmap.yaml
+  - configmaps/executor-production-configmap.yaml
+  - configmaps/executor-staging-configmap.yaml
+  - pvc/logs-pvc.yaml
+  - pvc/sqlserver-pvc.yaml

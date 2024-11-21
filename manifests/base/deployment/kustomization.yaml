@@ -1,0 +1,4 @@
+resources:
+  - api-deployment.yaml
+  - api-sqlserver-deployment.yaml
+  - executor-deployment.yaml
