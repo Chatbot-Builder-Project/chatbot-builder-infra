@@ -29,3 +29,9 @@ variable "aks_dns_prefix" {
   type        = string
   description = "DNS prefix for the AKS cluster"
 }
+
+variable "load_balancer_public_ip_ids" {
+  type = list(string)
+  description = "List of Public IP resource IDs to associate with the AKS load balancer"
+  default = []
+}
