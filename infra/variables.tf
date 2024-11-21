@@ -53,6 +53,22 @@ variable "staging_ip_name" {
   description = "Name of the public IP for the staging environment"
 }
 
+# So the public IP DNS label will be:
+# chatbot-builder-production-dns.israelcentral.cloudapp.azure.com
+variable "production_ip_dns_label" {
+  type        = string
+  description = "DNS label for the production public IP"
+  default     = "chatbot-builder-production-dns"
+}
+
+# So the public IP DNS label will be:
+# chatbot-builder-staging-dns.israelcentral.cloudapp.azure.com
+variable "staging_ip_dns_label" {
+  type        = string
+  description = "DNS label for the staging public IP"
+  default     = "chatbot-builder-staging-dns"
+}
+
 # AKS cluster configuration
 variable "node_count" {
   type        = number

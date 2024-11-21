@@ -26,6 +26,7 @@ module "public_ip_production" {
   name                = var.production_ip_name
   location            = module.resource_group.location
   resource_group_name = module.resource_group.resource_group_name
+  domain_name_label   = var.production_ip_dns_label
 }
 
 module "public_ip_staging" {
@@ -33,6 +34,7 @@ module "public_ip_staging" {
   name                = var.staging_ip_name
   location            = module.resource_group.location
   resource_group_name = module.resource_group.resource_group_name
+  domain_name_label   = var.staging_ip_dns_label
 }
 
 # Define the AKS cluster
