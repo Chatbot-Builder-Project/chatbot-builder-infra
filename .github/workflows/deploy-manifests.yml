@@ -112,6 +112,33 @@ jobs:
           find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec \
           sed -i 's|image: '"$IMAGE_MANIFEST_NAME"'|image: '"$IMAGE_FULL_NAME"'|' {} \;
 
+      - name: Inject Namespace into Manifests
+        run: |
+          echo "Injecting namespace into manifests where missing..."
+
+          # Define the directories to process
+          DIRECTORIES=(
+            "manifests/pre-deployment"
+            "manifests/deployment"
+            "manifests/post-deployment"
+          )
+
+          # Process each directory
+          for dir in "${DIRECTORIES[@]}"; do
+            echo "Processing directory: $dir"
+            find "$dir" -type f \( -name "*.yaml" -o -name "*.yml" \) | while read -r file; do
+              echo "Checking $file for namespace field..."
+
+              if ! grep -q "namespace:" "$file"; then
+                echo "Namespace not found in $file. Adding namespace: $NAMESPACE"
+                # Insert the namespace field under metadata
+                sed -i "s|metadata:|metadata:\n  namespace: $NAMESPACE|" "$file"
+              else
+                echo "Namespace already defined in $file. Skipping."
+              fi
+            done
+          done
+
       - name: Apply Namespaces
         run: |
           echo "Applying namespaces..."
