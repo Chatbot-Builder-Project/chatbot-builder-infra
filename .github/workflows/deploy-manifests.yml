@@ -123,7 +123,6 @@ jobs:
             "manifests/post-deployment"
           )
 
-          # Process each directory
           for dir in "${DIRECTORIES[@]}"; do
             echo "Processing directory: $dir"
             find "$dir" -type f \( -name "*.yaml" -o -name "*.yml" \) | while read -r file; do
@@ -131,8 +130,8 @@ jobs:
 
               if ! grep -q "namespace:" "$file"; then
                 echo "Namespace not found in $file. Adding namespace: $NAMESPACE"
-                # Insert the namespace field under metadata
-                sed -i "s|metadata:|metadata:\n  namespace: $NAMESPACE|" "$file"
+                # Insert `namespace` with proper indentation after `metadata:`
+                sed -i '/metadata:/a\  namespace: '"$NAMESPACE" "$file"
               else
                 echo "Namespace already defined in $file. Skipping."
               fi
