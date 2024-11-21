@@ -1,0 +1,97 @@
+name: Deploy Manifests
+
+on:
+  repository_dispatch:
+    types:
+      - deploy_chatbot_staging
+      - deploy_chatbot_production
+
+permissions:
+  contents: read
+
+env:
+  TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Configure Terraform Cloud Credentials
+        run: |
+          mkdir -p $HOME/.terraform.d
+          cat <<EOF > $HOME/.terraform.d/credentials.tfrc.json
+          {
+            "credentials": {
+              "app.terraform.io": {
+                "token": "${TFC_TOKEN}"
+              }
+            }
+          }
+          EOF
+
+      - name: Initialize Terraform and Retrieve Outputs
+        run: |
+          terraform -chdir=infra init
+          terraform -chdir=infra output -json > terraform-outputs.json
+
+      - name: Parse Terraform Outputs
+        id: parse_outputs
+        run: |
+          PRODUCTION_IP=$(jq -r '.production_public_ip.value' terraform-outputs.json)
+          STAGING_IP=$(jq -r '.staging_public_ip.value' terraform-outputs.json)
+          KUBE_CONFIG=$(jq -r '.kube_config.value' terraform-outputs.json)
+          
+          echo "PRODUCTION_IP=$PRODUCTION_IP" >> $GITHUB_ENV
+          echo "STAGING_IP=$STAGING_IP" >> $GITHUB_ENV
+
+          # Write kubeconfig to a file
+          echo "$KUBE_CONFIG" | base64 -d > kubeconfig
+          echo "KUBECONFIG=$(pwd)/kubeconfig" >> $GITHUB_ENV
+
+      - name: Set Up Kubectl
+        run: |
+          export KUBECONFIG=$(pwd)/kubeconfig
+          kubectl version --client
+          kubectl cluster-info
+
+      - name: Set Load Balancer IPs in Manifests
+        run: |
+          if [[ "${{ github.event.action }}" == "deploy_chatbot_staging" ]]; then
+            LOAD_BALANCER_IP=$STAGING_IP
+            NAMESPACE="staging"
+          elif [[ "${{ github.event.action }}" == "deploy_chatbot_production" ]]; then
+            LOAD_BALANCER_IP=$PRODUCTION_IP
+            NAMESPACE="production"
+          else
+            echo "Unknown event type. Exiting..."
+            exit 1
+          fi
+
+          echo "Using Load Balancer IP: $LOAD_BALANCER_IP for namespace: $NAMESPACE"
+
+          # Update manifests with the Load Balancer IP
+          sed -i "s|\${LOAD_BALANCER_IP}|$LOAD_BALANCER_IP|g" manifests/post-deployment/api-service.yaml
+
+      - name: Apply Namespaces
+        run: |
+          echo "Applying namespaces..."
+          kubectl apply -f manifests/namespaces.yml
+
+      - name: Apply pre-deployment resources (PVCs, ConfigMaps, Secrets)
+        run: |
+          echo "Applying all pre-deployment resources recursively."
+          find manifests/pre-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
+
+      - name: Deploy core resources (Deployment, StatefulSet)
+        run: |
+          echo "Applying all deployment resources recursively."
+          find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
+
+      - name: Apply post-deployment resources (Services, Ingress, HPA)
+        run: |
+          echo "Applying all post-deployment resources recursively."
+          find manifests/post-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kubectl apply -n $NAMESPACE -f {} \;
