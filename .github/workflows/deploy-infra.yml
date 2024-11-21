@@ -1,0 +1,63 @@
+name: Deploy Terraform Infrastructure
+
+on:
+  push:
+    paths:
+      - 'infra/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Authenticate with Terraform Cloud
+        run: |
+          # Authenticate using Terraform Cloud API token
+          export TFC_TOKEN=$TFC_TOKEN
+          terraform login <<EOF
+          $TFC_TOKEN
+          EOF
+
+      - name: Initialize Terraform
+        run: |
+          terraform -chdir=infra init
+
+      - name: Validate Terraform
+        run: |
+          terraform -chdir=infra validate
+
+      - name: Plan Terraform Changes
+        run: |
+          terraform -chdir=infra plan -out=tfplan
+
+      - name: Apply Terraform Plan
+        if: github.ref == 'refs/heads/main'
+        run: |
+          terraform -chdir=infra apply -auto-approve tfplan
+
+      - name: Output Values
+        run: |
+          terraform -chdir=infra output -json > terraform-outputs.json
+          echo "Terraform outputs saved to terraform-outputs.json"
+
+      - name: Upload Terraform Outputs
+        uses: actions/upload-artifact@v3
+        with:
+          name: terraform-outputs
+          path: infra/terraform-outputs.json
