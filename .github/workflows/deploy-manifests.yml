@@ -41,17 +41,41 @@ jobs:
       - name: Parse Terraform Outputs
         id: parse_outputs
         run: |
-          # Extract Terraform outputs using jq
           PRODUCTION_IP=$(jq -r '.production_public_ip.value' terraform-outputs.json)
           STAGING_IP=$(jq -r '.staging_public_ip.value' terraform-outputs.json)
-          KUBE_CONFIG=$(jq -r '.kube_config.value' terraform-outputs.json)
+          
+          # Parse kube_config object
+          KUBE_HOST=$(jq -r '.kube_config.value.host' terraform-outputs.json)
+          CLIENT_CERT=$(jq -r '.kube_config.value.client_certificate' terraform-outputs.json)
+          CLIENT_KEY=$(jq -r '.kube_config.value.client_key' terraform-outputs.json)
+          CA_CERT=$(jq -r '.kube_config.value.cluster_ca_certificate' terraform-outputs.json)
 
+          # Write kubeconfig file
+          cat <<EOF > kubeconfig
+          apiVersion: v1
+          clusters:
+          - cluster:
+              certificate-authority-data: $CA_CERT
+              server: $KUBE_HOST
+            name: aks-cluster
+          contexts:
+          - context:
+              cluster: aks-cluster
+              user: aks-user
+            name: aks-context
+          current-context: aks-context
+          kind: Config
+          preferences: {}
+          users:
+          - name: aks-user
+            user:
+              client-certificate-data: $CLIENT_CERT
+              client-key-data: $CLIENT_KEY
+          EOF
+
+          echo "KUBECONFIG=$(pwd)/kubeconfig" >> $GITHUB_ENV
           echo "PRODUCTION_IP=$PRODUCTION_IP" >> $GITHUB_ENV
           echo "STAGING_IP=$STAGING_IP" >> $GITHUB_ENV
-
-          # Write kubeconfig to a file
-          echo "$KUBE_CONFIG" | base64 -d > kubeconfig
-          echo "KUBECONFIG=$(pwd)/kubeconfig" >> $GITHUB_ENV
 
       - name: Set Up Kubectl
         run: |
