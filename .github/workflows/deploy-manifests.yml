@@ -104,6 +104,17 @@ jobs:
         run: |
           sed -i "s|\${LOAD_BALANCER_IP}|${{ env.load_balancer_ip }}|g" manifests/base/post-deployment/api-service.yaml
 
+      - name: Update Deployment Manifests with New Image
+        run: |
+          IMAGE_FULL_NAME="${{ github.event.client_payload.image_full_name }}"
+          IMAGE_MANIFEST_NAME="${{ github.event.client_payload.image_manifest_name }}"
+
+          echo "Updating deployments for image: $IMAGE_FULL_NAME"
+
+          # Find and replace occurrences of the image name in deployment manifests
+          find manifests/base/deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec \
+          sed -i 's|image: '"$IMAGE_MANIFEST_NAME"'|image: '"$IMAGE_FULL_NAME"'|' {} \;
+
       - name: Apply Resources with Kustomize
         run: |
           echo "Applying resources using Kustomize overlay ${{ env.kustomize_overlay }}"
