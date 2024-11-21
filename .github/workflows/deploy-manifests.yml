@@ -116,7 +116,7 @@ jobs:
       - name: Apply Namespaces
         run: |
           echo "Applying namespaces..."
-          kubectl apply -f manifests/namespaces.yml
+          kubectl apply -f manifests/namespaces.yaml
 
       - name: Apply pre-deployment resources (PVCs, ConfigMaps, Secrets)
         run: |
