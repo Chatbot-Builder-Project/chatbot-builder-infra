@@ -76,6 +76,18 @@ jobs:
           # Update manifests with the Load Balancer IP
           sed -i "s|\${LOAD_BALANCER_IP}|$LOAD_BALANCER_IP|g" manifests/post-deployment/api-service.yaml
 
+      - name: Update Deployment Manifests with New Image
+        run: |
+          IMAGE_NAME="${{ github.event.client_payload.image_name }}"
+          IMAGE_TAG="${{ github.event.client_payload.image_tag }}"
+          FULL_IMAGE="${IMAGE_NAME}:${IMAGE_TAG}"
+
+          echo "Updating deployments for image: $IMAGE_NAME with tag: $IMAGE_TAG"
+
+          # Find and replace occurrences of the image name in deployment manifests
+          find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec \
+          sed -i 's|image: '"$IMAGE_NAME"'|image: '"$FULL_IMAGE"'|' {} \;
+
       - name: Apply Namespaces
         run: |
           echo "Applying namespaces..."
