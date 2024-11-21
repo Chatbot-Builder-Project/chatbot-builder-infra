@@ -4,5 +4,5 @@ metadata:
   name: api-env-configmap
   namespace: production
 data:
-  ASPNETCORE_ENVIRONMENT: "production"
-  SENTRY_MINIMUM_EVENT_LEVEL: "warning"
+  ASPNETCORE_ENVIRONMENT: "base"
+  SENTRY_MINIMUM_EVENT_LEVEL: "base"

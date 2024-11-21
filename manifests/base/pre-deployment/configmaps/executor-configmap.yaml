@@ -4,5 +4,5 @@ metadata:
   name: executor-env-configmap
   namespace: production
 data:
-  LOG_LEVEL: "INFO"
-  SENTRY_ENVIRONMENT: "production"
+  LOG_LEVEL: "base"
+  SENTRY_ENVIRONMENT: "base"

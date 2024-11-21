@@ -7,3 +7,15 @@ resources:
   - ../../base/pre-deployment/
   - ../../base/deployment/
   - ../../base/post-deployment/
+
+configMapGenerator:
+  - name: api-env-configmap
+    behavior: merge
+    literals:
+      - ASPNETCORE_ENVIRONMENT=staging
+      - SENTRY_MINIMUM_EVENT_LEVEL=information
+  - name: executor-env-configmap
+    behavior: merge
+    literals:
+      - LOG_LEVEL=INFO
+      - SENTRY_ENVIRONMENT=staging
