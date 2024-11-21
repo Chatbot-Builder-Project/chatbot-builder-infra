@@ -26,12 +26,17 @@ jobs:
         with:
           terraform_version: 1.5.0
 
-      - name: Authenticate with Terraform Cloud
+      - name: Configure Terraform Cloud Credentials
         run: |
-          # Authenticate using Terraform Cloud API token
-          export TFC_TOKEN=$TFC_TOKEN
-          terraform login <<EOF
-          $TFC_TOKEN
+          mkdir -p $HOME/.terraform.d
+          cat <<EOF > $HOME/.terraform.d/credentials.tfrc.json
+          {
+            "credentials": {
+              "app.terraform.io": {
+                "token": "${TFC_TOKEN}"
+              }
+            }
+          }
           EOF
 
       - name: Initialize Terraform
