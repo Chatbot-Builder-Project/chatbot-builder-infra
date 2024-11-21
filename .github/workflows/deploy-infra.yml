@@ -47,14 +47,10 @@ jobs:
         run: |
           terraform -chdir=infra validate
 
-      - name: Plan Terraform Changes
-        run: |
-          terraform -chdir=infra plan -out=tfplan
-
-      - name: Apply Terraform Plan
+      - name: Apply Terraform Changes
         if: github.ref == 'refs/heads/main'
         run: |
-          terraform -chdir=infra apply -auto-approve tfplan
+          terraform -chdir=infra apply -auto-approve
 
       - name: Output Values
         run: |
