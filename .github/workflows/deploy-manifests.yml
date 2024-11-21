@@ -83,86 +83,28 @@ jobs:
           kubectl version --client
           kubectl cluster-info
 
-      - name: Set Load Balancer IPs in Manifests
+      - name: Determine Namespace and Overlay
+        id: namespace_overlay
         run: |
           if [[ "${{ github.event.action }}" == "deploy_chatbot_staging" ]]; then
-            LOAD_BALANCER_IP=$STAGING_IP
-            NAMESPACE="staging"
+            echo "namespace=staging" >> $GITHUB_ENV
+            echo "kustomize_overlay=manifests/overlays/staging" >> $GITHUB_ENV
+            echo "load_balancer_ip=$STAGING_IP" >> $GITHUB_ENV
           elif [[ "${{ github.event.action }}" == "deploy_chatbot_production" ]]; then
-            LOAD_BALANCER_IP=$PRODUCTION_IP
-            NAMESPACE="production"
+            echo "namespace=production" >> $GITHUB_ENV
+            echo "kustomize_overlay=manifests/overlays/production" >> $GITHUB_ENV
+            echo "load_balancer_ip=$PRODUCTION_IP" >> $GITHUB_ENV
           else
             echo "Unknown event type. Exiting..."
             exit 1
           fi
+        shell: bash
 
-          echo "Using Load Balancer IP: $LOAD_BALANCER_IP for namespace: $NAMESPACE"
-
-          # Update manifests with the Load Balancer IP
-          sed -i "s|\${LOAD_BALANCER_IP}|$LOAD_BALANCER_IP|g" manifests/post-deployment/api-service.yaml
-
-      - name: Update Deployment Manifests with New Image
+      - name: Set Load Balancer IP in Manifests
         run: |
-          IMAGE_FULL_NAME="${{ github.event.client_payload.image_full_name }}"
-          IMAGE_MANIFEST_NAME="${{ github.event.client_payload.image_manifest_name }}"
+          sed -i "s|\${LOAD_BALANCER_IP}|${{ env.load_balancer_ip }}|g" manifests/post-deployment/api-service.yaml
 
-          echo "Updating deployments for image: $IMAGE_FULL_NAME"
-
-          # Find and replace occurrences of the image name in deployment manifests
-          find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \) -exec \
-          sed -i 's|image: '"$IMAGE_MANIFEST_NAME"'|image: '"$IMAGE_FULL_NAME"'|' {} \;
-
-      - name: Inject Namespace into Manifests
+      - name: Apply Resources with Kustomize
         run: |
-          echo "Injecting namespace into manifests where missing..."
-
-          # Define the directories to process
-          DIRECTORIES=(
-            "manifests/pre-deployment"
-            "manifests/deployment"
-            "manifests/post-deployment"
-          )
-
-          for dir in "${DIRECTORIES[@]}"; do
-            echo "Processing directory: $dir"
-            find "$dir" -type f \( -name "*.yaml" -o -name "*.yml" \) | while read -r file; do
-              echo "Checking $file for namespace field..."
-
-              if ! grep -q "namespace:" "$file"; then
-                echo "Namespace not found in $file. Adding namespace: $NAMESPACE"
-                # Insert `namespace` with proper indentation after `metadata:`
-                sed -i '/metadata:/a\  namespace: '"$NAMESPACE" "$file"
-              else
-                echo "Namespace already defined in $file. Skipping."
-              fi
-            done
-          done
-
-      - name: Apply Namespaces
-        run: |
-          echo "Applying namespaces..."
-          kubectl apply -f manifests/namespaces.yaml
-
-      - name: Apply pre-deployment resources (PVCs, ConfigMaps, Secrets)
-        run: |
-          echo "Applying all pre-deployment resources recursively."
-          find manifests/pre-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) | while read -r file; do
-            echo "Applying $file"
-            kubectl apply -n "$NAMESPACE" -f "$file"
-          done
-
-      - name: Deploy core resources (Deployment, StatefulSet)
-        run: |
-          echo "Applying all deployment resources recursively."
-          find manifests/deployment -type f \( -name "*.yaml" -o -name "*.yml" \) | while read -r file; do
-            echo "Applying $file"
-            kubectl apply -n "$NAMESPACE" -f "$file"
-          done
-
-      - name: Apply post-deployment resources (Services, Ingress, HPA)
-        run: |
-          echo "Applying all post-deployment resources recursively."
-          find manifests/post-deployment -type f \( -name "*.yaml" -o -name "*.yml" \) | while read -r file; do
-            echo "Applying $file"
-            kubectl apply -n "$NAMESPACE" -f "$file"
-          done
+          echo "Applying resources using Kustomize overlay ${{ env.kustomize_overlay }}"
+          kubectl apply -k ${{ env.kustomize_overlay }}
