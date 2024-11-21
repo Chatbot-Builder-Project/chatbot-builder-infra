@@ -102,7 +102,7 @@ jobs:
 
       - name: Set Load Balancer IP in Manifests
         run: |
-          sed -i "s|\${LOAD_BALANCER_IP}|${{ env.load_balancer_ip }}|g" manifests/post-deployment/api-service.yaml
+          sed -i "s|\${LOAD_BALANCER_IP}|${{ env.load_balancer_ip }}|g" manifests/base/post-deployment/api-service.yaml
 
       - name: Apply Resources with Kustomize
         run: |
