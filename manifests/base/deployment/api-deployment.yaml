@@ -30,10 +30,7 @@ spec:
                   name: common-secrets
                   key: SENTRY_DSN
             - name: ConnectionStrings__AppDbContextConnection
-              valueFrom:
-                configMapKeyRef:
-                  key: SQLSERVER_CONNECTION_STRING
-                  name: api-env-configmap
+              value: "Server=api-sqlserver-service,1433;Database=master;User Id=sa;Password=cFj23uNY0lT&WP@t;TrustServerCertificate=True;"
           volumeMounts:
             - mountPath: /app/logs
               name: logs-volume
