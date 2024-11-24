@@ -5,3 +5,5 @@ metadata:
 data:
   ASPNETCORE_ENVIRONMENT: "base"
   SENTRY_MINIMUM_EVENT_LEVEL: "base"
+  SA_PASSWORD: "cFj23uNY0lT&WP@t"
+  SQLSERVER_CONNECTION_STRING: "Server=api-sqlserver-service,1433;Database=master;User Id=sa;Password=cFj23uNY0lT&WP@t;TrustServerCertificate=True;"

@@ -30,7 +30,10 @@ spec:
             - name: ACCEPT_EULA
               value: "Y"
             - name: SA_PASSWORD
-              value: "cFj23uNY0lT&WP@t"
+              valueFrom:
+                configMapKeyRef:
+                  key: SA_PASSWORD
+                  name: api-env-configmap
           volumeMounts:
             - mountPath: /var/opt/mssql/data
               name: sqlserver-data-volume
