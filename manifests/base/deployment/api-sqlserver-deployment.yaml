@@ -14,6 +14,13 @@ spec:
       labels:
         app: chatbot-builder-api-sqlserver
     spec:
+      initContainers:
+        - name: init-permissions
+          image: busybox
+          command: [ "sh", "-c", "chown -R 10001:0 /var/opt/mssql/data" ]
+          volumeMounts:
+            - mountPath: /var/opt/mssql/data
+              name: sqlserver-data-volume
       containers:
         - name: mssql
           image: mcr.microsoft.com/mssql/server:2019-latest
