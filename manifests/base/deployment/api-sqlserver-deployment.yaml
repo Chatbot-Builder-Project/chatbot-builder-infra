@@ -31,9 +31,9 @@ spec:
               value: "Y"
             - name: SA_PASSWORD
               valueFrom:
-                secretKeyRef:
-                  name: api-secrets
+                configMapKeyRef:
                   key: SA_PASSWORD
+                  name: api-env-configmap
           volumeMounts:
             - mountPath: /var/opt/mssql/data
               name: sqlserver-data-volume

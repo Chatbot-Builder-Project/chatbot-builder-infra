@@ -31,9 +31,9 @@ spec:
                   key: SENTRY_DSN
             - name: ConnectionStrings__AppDbContextConnection
               valueFrom:
-                secretKeyRef:
-                  name: api-secrets
+                configMapKeyRef:
                   key: SQLSERVER_CONNECTION_STRING
+                  name: api-env-configmap
           volumeMounts:
             - mountPath: /app/logs
               name: logs-volume
