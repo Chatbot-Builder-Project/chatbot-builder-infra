@@ -10,3 +10,7 @@ output "cluster_name" {
 output "identity" {
   value = azurerm_kubernetes_cluster.aks.identity
 }
+
+output "node_resource_group" {
+  value = azurerm_kubernetes_cluster.aks.node_resource_group
+}

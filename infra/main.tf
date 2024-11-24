@@ -20,23 +20,6 @@ module "resource_group" {
   location = var.location
 }
 
-# Define and output 2 public IPs for the AKS cluster
-module "public_ip_production" {
-  source              = "./modules/public_ip"
-  name                = var.production_ip_name
-  location            = module.resource_group.location
-  resource_group_name = module.resource_group.resource_group_name
-  domain_name_label   = var.production_ip_dns_label
-}
-
-module "public_ip_staging" {
-  source              = "./modules/public_ip"
-  name                = var.staging_ip_name
-  location            = module.resource_group.location
-  resource_group_name = module.resource_group.resource_group_name
-  domain_name_label   = var.staging_ip_dns_label
-}
-
 # Define the AKS cluster
 module "aks" {
   source              = "./modules/aks"
@@ -46,8 +29,21 @@ module "aks" {
   node_count          = var.node_count
   vm_size             = var.vm_size
   aks_dns_prefix      = var.cluster_name
-  load_balancer_public_ip_ids = [
-    module.public_ip_production.public_ip_id,
-    module.public_ip_staging.public_ip_id
-  ]
+}
+
+# Define and output 2 public IPs for the AKS cluster
+module "public_ip_production" {
+  source              = "./modules/public_ip"
+  name                = var.production_ip_name
+  location            = module.resource_group.location
+  resource_group_name = module.aks.node_resource_group
+  domain_name_label   = var.production_ip_dns_label
+}
+
+module "public_ip_staging" {
+  source              = "./modules/public_ip"
+  name                = var.staging_ip_name
+  location            = module.resource_group.location
+  resource_group_name = module.aks.node_resource_group
+  domain_name_label   = var.staging_ip_dns_label
 }
