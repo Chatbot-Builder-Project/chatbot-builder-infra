@@ -4,6 +4,8 @@ resource "azurerm_storage_account" "storage_account" {
   location                 = var.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
+  account_kind             = "StorageV2"
+  access_tier              = "Cool"
 }
 
 resource "azurerm_storage_container" "blob_container" {
