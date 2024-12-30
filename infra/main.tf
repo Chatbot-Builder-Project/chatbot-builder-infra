@@ -47,3 +47,15 @@ module "public_ip_staging" {
   resource_group_name = module.aks.node_resource_group
   domain_name_label   = var.staging_ip_dns_label
 }
+
+# Blob Storage module
+module "blob_storage" {
+  source              = "./modules/blob_storage"
+  name                = var.storage_account_name
+  location            = module.resource_group.location
+  resource_group_name = module.resource_group.resource_group_name
+  allowed_ips = [
+    module.public_ip_production.public_ip_address,
+    module.public_ip_staging.public_ip_address
+  ]
+}

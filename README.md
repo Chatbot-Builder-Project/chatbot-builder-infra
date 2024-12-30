@@ -33,6 +33,7 @@ related resources.
   the number of nodes, VM size, and DNS prefix.
 - `modules/public_ip`: Public IP addresses for the AKS cluster, one for the staging
   environment and another for the production environment.
+- `modules/blob_storage`: Azure Blob Storage used by microservices to store files.
 
 #### Outputs
 
@@ -54,6 +55,8 @@ related resources.
         - `ARM_CLIENT_SECRET`
         - `ARM_SUBSCRIPTION_ID`
         - `ARM_TENANT_ID`
+    3. The blob storage is configured to allow access to Production and Staging IP addresses. To use it in development,
+       go to Azure Portal and add your IP address to the firewall rules manually.
 
 - **Terraform Cloud:**
   This project is synced with Terraform Cloud for state management. Ensure you have a Terraform Cloud token saved as a

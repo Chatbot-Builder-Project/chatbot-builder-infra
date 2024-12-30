@@ -81,3 +81,11 @@ variable "vm_size" {
   default     = "Standard_A2_v2"
   description = "VM size for the nodes in the AKS cluster"
 }
+
+# So the storage account URL will be:
+# chatbotbuilder.blob.core.windows.net
+variable "storage_account_name" {
+  type        = string
+  default     = "chatbotbuilder"
+  description = "The name of the storage account"
+}
