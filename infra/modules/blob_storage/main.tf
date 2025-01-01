@@ -11,7 +11,7 @@ resource "azurerm_storage_account" "storage_account" {
 resource "azurerm_storage_container" "blob_container" {
   name                  = "default-container"
   storage_account_id    = azurerm_storage_account.storage_account.id
-  container_access_type = "private"
+  container_access_type = var.container_access_type
 }
 
 resource "azurerm_storage_account_network_rules" "network_rules" {
