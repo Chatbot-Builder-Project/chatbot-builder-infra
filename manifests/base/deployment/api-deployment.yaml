@@ -29,6 +29,16 @@ spec:
                 secretKeyRef:
                   name: common-secrets
                   key: SENTRY_DSN
+            - name: AZURE_BLOB_STORAGE_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: AZURE_BLOB_STORAGE_CONNECTION_STRING
+            - name: AZURE_BLOB_STORAGE_CONTAINER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: AZURE_BLOB_STORAGE_CONTAINER_NAME
             - name: ConnectionStrings__AppDbContextConnection
               valueFrom:
                 configMapKeyRef:

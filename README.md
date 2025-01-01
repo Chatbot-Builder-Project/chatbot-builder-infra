@@ -57,6 +57,10 @@ related resources.
         - `ARM_TENANT_ID`
     3. The blob storage is configured to allow access to Production and Staging IP addresses. To use it in development,
        go to Azure Portal and add your IP address to the firewall rules manually.
+    4. You also need to generate SAS connection strings for the blob storage (for each IP) and save them in
+       `common-secrets.yaml` manifest before applying them to AKS later:
+        - `AZURE_BLOB_STORAGE_CONNECTION_STRING`
+        - `AAZURE_BLOB_STORAGE_CONTAINER_NAME` for which you can use the default container `default-container`.
 
 - **Terraform Cloud:**
   This project is synced with Terraform Cloud for state management. Ensure you have a Terraform Cloud token saved as a
