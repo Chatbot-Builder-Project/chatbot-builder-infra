@@ -14,7 +14,7 @@ env:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: [ self-hosted, ubuntu-23 ]
 
     steps:
       - name: Checkout Repository
@@ -32,11 +32,6 @@ jobs:
             }
           }
           EOF
-
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.9.8
 
       - name: Initialize Terraform and Retrieve Outputs
         run: |
