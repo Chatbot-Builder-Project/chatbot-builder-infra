@@ -50,7 +50,10 @@ spec:
                   key: SQLSERVER_CONNECTION_STRING
                   name: api-env-configmap
             - name: EXECUTOR_GRPC_ADDRESS
-              value: "chatbot-builder-executor-service:50051"
+              valueFrom:
+                configMapKeyRef:
+                  key: EXECUTOR_GRPC_ADDRESS
+                  name: api-env-configmap
           volumeMounts:
             - mountPath: /app/logs
               name: logs-volume

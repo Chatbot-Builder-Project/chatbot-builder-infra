@@ -1,3 +1,4 @@
 resources:
   - api-service.yaml
   - api-sqlserver-service.yaml
+  - executor-service.yaml
