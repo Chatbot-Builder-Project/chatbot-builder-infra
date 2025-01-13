@@ -30,6 +30,16 @@ spec:
                 secretKeyRef:
                   name: common-secrets
                   key: SENTRY_DSN
+            - name: OPENAI_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: OPENAI_ENDPOINT
+            - name: OPENAI_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: OPENAI_KEY
           volumeMounts:
             - mountPath: /app/logs
               name: logs-volume
