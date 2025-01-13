@@ -89,3 +89,9 @@ variable "storage_account_name" {
   default     = "chatbotbuilder"
   description = "The name of the storage account"
 }
+
+variable "openai_service_name" {
+  type        = string
+  default     = "chatbot-builder-openai"
+  description = "Name of the Azure OpenAI service"
+}

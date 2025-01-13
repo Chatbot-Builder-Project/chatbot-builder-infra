@@ -21,3 +21,12 @@ output "kube_config" {
   value       = module.aks.kube_config
   sensitive   = true
 }
+
+output "openai_endpoint" {
+  value = module.openai_service.endpoint
+}
+
+output "openai_key" {
+  value     = module.openai_service.key
+  sensitive = true
+}

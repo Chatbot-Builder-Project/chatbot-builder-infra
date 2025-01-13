@@ -60,3 +60,11 @@ module "blob_storage" {
     module.public_ip_staging.public_ip_address
   ]
 }
+
+# Azure OpenAI service
+module "openai_service" {
+  source              = "./modules/openai_service"
+  name                = var.openai_service_name
+  location            = "eastus"
+  resource_group_name = module.resource_group.resource_group_name
+}

@@ -62,6 +62,12 @@ related resources.
         - `AZURE_BLOB_STORAGE_ACCOUNT_NAME`
         - `AZURE_BLOB_STORAGE_ACCOUNT_KEY`
         - `AZURE_BLOB_STORAGE_CONTAINER_NAME` for which you can use the default container `default-container`
+    5. The OpenAi Service produces two outputs which should be saved in the `common-secrets.yaml` manifest:
+        - `OPENAI_ENDPOINT`
+        - `OPENAI_KEY` you can display this sensitive information using the following command:
+        ```bash
+        terraform output openai_key
+        ```
 
 - **Terraform Cloud:**
   This project is synced with Terraform Cloud for state management. Ensure you have a Terraform Cloud token saved as a
