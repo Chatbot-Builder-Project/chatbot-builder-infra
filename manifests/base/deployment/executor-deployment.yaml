@@ -40,6 +40,21 @@ spec:
                 secretKeyRef:
                   name: common-secrets
                   key: OPENAI_KEY
+            - name: USE_DEEPSEEK
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: USE_DEEPSEEK
+            - name: DEEPSEEK_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: DEEPSEEK_ENDPOINT
+            - name: DEEPSEEK_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: DEEPSEEK_KEY
           volumeMounts:
             - mountPath: /app/logs
               name: logs-volume
