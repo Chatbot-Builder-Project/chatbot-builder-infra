@@ -7,4 +7,4 @@ data:
   SENTRY_MINIMUM_EVENT_LEVEL: "base"
   SA_PASSWORD: "cFj23uNY0lT&WP@t"
   SQLSERVER_CONNECTION_STRING: "Server=api-sqlserver-service,1433;Database=master;User Id=sa;Password=cFj23uNY0lT&WP@t;TrustServerCertificate=True;"
-  EXECUTOR_GRPC_ADDRESS: "chatbot-builder-executor-service:50051"
+  EXECUTOR_GRPC_ADDRESS: "http://chatbot-builder-executor-service:50051"
