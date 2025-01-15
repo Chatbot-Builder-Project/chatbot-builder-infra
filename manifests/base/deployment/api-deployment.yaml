@@ -24,22 +24,32 @@ spec:
             - configMapRef:
                 name: api-env-configmap
           env:
-            - name: SENTRY_DSN
+            - name: Sentry__WriteTo__1__Name
               valueFrom:
                 secretKeyRef:
                   name: common-secrets
                   key: SENTRY_DSN
-            - name: AZURE_BLOB_STORAGE_ACCOUNT_NAME
+            - name: Sentry__WriteTo__1__Args__MinimumEventLevel
+              valueFrom:
+                configMapKeyRef:
+                  name: api-env-configmap
+                  key: SENTRY_MINIMUM_EVENT_LEVEL
+            - name: Sentry__WriteTo__1__Args__Environment
+              valueFrom:
+                configMapKeyRef:
+                  name: api-env-configmap
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: AzureBlobStorageSettings__AccountName
               valueFrom:
                 secretKeyRef:
                   name: common-secrets
                   key: AZURE_BLOB_STORAGE_ACCOUNT_NAME
-            - name: AZURE_BLOB_STORAGE_ACCOUNT_KEY
+            - name: AzureBlobStorageSettings__AccountKey
               valueFrom:
                 secretKeyRef:
                   name: common-secrets
                   key: AZURE_BLOB_STORAGE_ACCOUNT_KEY
-            - name: AZURE_BLOB_STORAGE_CONTAINER_NAME
+            - name: AzureBlobStorageSettings__ContainerName
               valueFrom:
                 secretKeyRef:
                   name: common-secrets
@@ -49,7 +59,7 @@ spec:
                 configMapKeyRef:
                   key: SQLSERVER_CONNECTION_STRING
                   name: api-env-configmap
-            - name: EXECUTOR_GRPC_ADDRESS
+            - name: ExecutorService__Uri
               valueFrom:
                 configMapKeyRef:
                   key: EXECUTOR_GRPC_ADDRESS
