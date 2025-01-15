@@ -55,14 +55,12 @@ related resources.
         - `ARM_CLIENT_SECRET`
         - `ARM_SUBSCRIPTION_ID`
         - `ARM_TENANT_ID`
-    3. The blob storage is configured to allow access to Production and Staging IP addresses. To use it in development,
-       go to Azure Portal and add your IP address to the firewall rules manually.
-    4. You also need to get the account name and key for the blob storage from Azure Portal and save them in the
-       `common-secrets.yaml` manifest before applying it to AKS later:
+    3. For the Azure Blob Storage Account you need to get the account name and key manually from Azure Portal.
+       Save them in the `common-secrets.yaml` manifest before applying it to AKS later:
         - `AZURE_BLOB_STORAGE_ACCOUNT_NAME`
         - `AZURE_BLOB_STORAGE_ACCOUNT_KEY`
         - `AZURE_BLOB_STORAGE_CONTAINER_NAME` for which you can use the default container `default-container`
-    5. The OpenAi Service produces two outputs which should be saved in the `common-secrets.yaml` manifest:
+    4. The OpenAI Service produces two outputs which should be saved in the `common-secrets.yaml` manifest:
         - `OPENAI_ENDPOINT`
         - `OPENAI_KEY` you can display this sensitive information using the following command:
         ```bash

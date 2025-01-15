@@ -55,10 +55,6 @@ module "blob_storage" {
   location              = module.resource_group.location
   resource_group_name   = module.resource_group.resource_group_name
   container_access_type = "blob"
-  allowed_ips = [
-    module.public_ip_production.public_ip_address,
-    module.public_ip_staging.public_ip_address
-  ]
 }
 
 # Azure OpenAI service

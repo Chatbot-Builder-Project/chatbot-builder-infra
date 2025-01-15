@@ -17,7 +17,3 @@ variable "container_access_type" {
   description = "The access level to use for the container"
   type        = string
 }
-variable "allowed_ips" {
-  description = "List of IPs allowed to access the blob storage"
-  type = list(string)
-}

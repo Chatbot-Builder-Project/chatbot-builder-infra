@@ -16,6 +16,5 @@ resource "azurerm_storage_container" "blob_container" {
 
 resource "azurerm_storage_account_network_rules" "network_rules" {
   storage_account_id = azurerm_storage_account.storage_account.id
-  ip_rules           = var.allowed_ips
-  default_action     = "Deny"
+  default_action     = "Allow"
 }
