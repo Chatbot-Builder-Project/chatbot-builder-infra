@@ -87,7 +87,7 @@ variable "vm_size" {
 variable "storage_account_name" {
   type        = string
   default     = "chatbotbuilderstorage"
-  description = "The name of the storage account"
+  description = "Name of the storage account"
 }
 
 variable "openai_service_name" {
