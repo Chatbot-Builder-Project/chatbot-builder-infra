@@ -83,10 +83,10 @@ variable "vm_size" {
 }
 
 # So the storage account URL will be:
-# chatbotbuilder.blob.core.windows.net
+# chatbotbuilderstorage.blob.core.windows.net
 variable "storage_account_name" {
   type        = string
-  default     = "chatbotbuilder"
+  default     = "chatbotbuilderstorage"
   description = "The name of the storage account"
 }
 

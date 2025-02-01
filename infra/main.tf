@@ -9,7 +9,7 @@ terraform {
   cloud {
     organization = "chatbot-builder"
     workspaces {
-      name = "infra-workspace-2"
+      name = "infra-workspace-3"
     }
   }
 }
